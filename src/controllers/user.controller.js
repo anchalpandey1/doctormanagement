@@ -59,7 +59,7 @@ const registerUser = asyncHandler(async (req, res) => {
             
             email,
             password,
-            role: role || "2", // Default role is "2" (user)
+            role: role || "1", // Default role is "1" (user)
         });
         await newUser.save();
 
@@ -136,7 +136,168 @@ console.log(user);
       );
 });
 
+const createUserProfile = asyncHandler(async (req, res) => {
+    try {
+        const { email, firstName, lastName, gender, address, phoneNumber } = req.body;
+
+        // Check if email is provided
+        if (!email) {
+            return res.status(400).json(new ApiError(400, null, "Email is required"));
+        }
+
+        // Find user by email
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json(new ApiError(404, null, "User with this email not found"));
+        }
+
+        // Check if profile already exists
+        if (user.firstName && user.lastName && user.gender && user.address && user.phoneNumber) {
+            return res.status(400).json(new ApiError(400, null, "Profile already created"));
+        }
+
+        // Update user profile fields
+        user.firstName = firstName || user.firstName;
+        user.lastName = lastName || user.lastName;
+        user.gender = gender || user.gender;
+        user.address = address || user.address;
+        user.phoneNumber = phoneNumber || user.phoneNumber;
+
+        // Save updated user profile
+        await user.save();
+
+        // Send response
+        res.status(201).json(new ApiResponse(201, user, "userInfo", "Profile created successfully"));
+    } catch (error) {
+        console.error("Error in createUserProfile:", error);
+        res.status(500).json(new ApiError(500, null, "Internal Server Error"));
+    }
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+   
+    if (!req.user) {
+        return res.status(401).json(new ApiError(401, null, "Unauthorized access"));
+    }
+
+    // Fetch user details
+    const user = await User.findById(req.user._id).select(
+        "-password -refreshToken "
+    );
+
+    if (!user) {
+        return res.status(404).json(new ApiError(404, null, "User not found"));
+    }
+
+    // Return user details
+    return res.status(200).json({
+        status: true,
+        statusCode: 200,
+        message: "User fetched successfully",
+        user: user, 
+    });
+});
+
+const updateUserProfile = asyncHandler(async (req, res) => {
+    try {
+        const { firstName, lastName, gender, address, phoneNumber } = req.body;
+        
+        if (!req.user) {
+            return res.status(401).json(new ApiError(401, null, "Unauthorized access"));
+        }
+
+        // Find the user by ID
+        let user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json(new ApiError(404, null, "User not found"));
+        }
+
+        // Update only allowed fields
+        user.firstName = firstName || user.firstName;
+        user.lastName = lastName || user.lastName;
+        user.gender = gender || user.gender;
+        user.address = address || user.address;
+        user.phoneNumber = phoneNumber || user.phoneNumber;
+
+      
+        // Save updated user profile
+        await user.save();
+
+        return res.status(200).json(new ApiResponse(200, user, "userInfo", "Profile updated successfully"));
+    } catch (error) {
+        console.error("Error in updateUserProfile:", error);
+        res.status(500).json(new ApiError(500, null, "Internal Server Error"));
+    }
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: {
+                refreshToken: 1, 
+            },
+        },
+        {
+            new: true,
+        }
+    );
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, {}, "User logged Out"));
+});
+
+const deleteUser = asyncHandler(async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json(new ApiError(401, null, "Unauthorized access"));
+        }
+
+        // Find the user and set deletedFlag = 1
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { deletedFlag: 1 },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json(new ApiError(404, null, "User not found"));
+        }
+
+        const options = {
+            httpOnly: true,
+            secure: true,
+        };
+
+        return res
+            .status(200)
+            .clearCookie("accessToken", options)
+            .clearCookie("refreshToken", options)
+            .json(new ApiResponse(200, {}, {}, "User marked as deleted successfully"));
+    } catch (error) {
+        console.error("Error in deleteUser:", error);
+        res.status(500).json(new ApiError(500, null, "Internal Server Error"));
+    }
+});
+
+
+
+
 export {
     registerUser,
-    loginUser
+    loginUser,
+    createUserProfile,
+   getCurrentUser,
+   updateUserProfile,
+   logoutUser,
+   deleteUser
 };

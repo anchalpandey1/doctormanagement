@@ -1,14 +1,5 @@
 import { Router } from "express";
-import {
-    registerUser,
-    loginUser,
-    createUserProfile,
-    getCurrentUser,
-    updateUserProfile,
-    logoutUser,
-    deleteUser
-   
-} from "../controllers/user.controller.js";
+import { createprofile } from "../controllers/doctor.controller.js";
 import upload from "../utils/multer.js";
 import { validateRequestBody } from "../middlewares/validation.middleware.js";
 
@@ -17,7 +8,5 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 //Admin Related
 // router.route("/signup").post(upload.single("profile"), registerUser);
-router.route("/signup").post( registerUser);
-router.route("/signin").post(loginUser);
-
+router.route("/createprofile").post(verifyJWT, createprofile);
 export default router;

@@ -58,12 +58,14 @@ app.get("/api/v1/", (req, res) => {
 
 // Routing Statrt From Here
 import userRouter from "./routes/user.routes.js";
-
+import doctorRouter from "./routes/doctor.routes.js";
+import patientRouter from "./routes/patient.routes.js";
 app.use(logReqRes("log.txt"));
 
 
 app.use("/api/v1/users", userRouter);
-
+app.use("/api/v1/doctors", doctorRouter);
+app.use("/api/v1/patients", patientRouter);
 
 app.use((err, req, res, next) => {
     if (err.type === "entity.too.large") {

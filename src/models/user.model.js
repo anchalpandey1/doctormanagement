@@ -13,20 +13,22 @@ const userSchema = new Schema(
             trim: true,
             validate: [validator.isEmail, "Invalid Email Address"],
         },
-      password:{
-        type:String,
-        
-      },
-      role: {
-        type: String,
-        enum: ["0", "1", "2"], //0 Admin 1 doctor 2 user
-        required: [true, "Role is required"],
-        
-    },
+        password: {
+            type: String,
+
+        },
+        role: {
+            type: String,
+            enum: ["0", "1", "2"], //0 admin 1 user 2 doctor 
+            required: [true, "Role is required"],
+
+        },
         refreshToken: {
             type: String,
         },
+       
     },
+    
     {
         timestamps: true,
     }
@@ -47,7 +49,8 @@ userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
             _id: this._id,
-            username: this.username,
+            email: this.email,
+            role:this.role,
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
