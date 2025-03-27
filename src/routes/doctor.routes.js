@@ -1,12 +1,14 @@
 import { Router } from "express";
-import { createprofile } from "../controllers/doctor.controller.js";
+import { createprofile,getDoctorProfile ,getAllDoctors,updateDoctorProfile ,deleteDoctorProfile} from "../controllers/doctor.controller.js";
 import upload from "../utils/multer.js";
 import { validateRequestBody } from "../middlewares/validation.middleware.js";
 
 const router = Router();
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
-//Admin Related
-// router.route("/signup").post(upload.single("profile"), registerUser);
 router.route("/createprofile").post(verifyJWT, createprofile);
+router.route("/get").get(verifyJWT, getDoctorProfile);
+router.route("/getall").get( getAllDoctors);
+router.route("/update").put(verifyJWT, updateDoctorProfile);
+router.route("/delete").delete(verifyJWT, deleteDoctorProfile);
 export default router;

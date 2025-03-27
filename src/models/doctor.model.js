@@ -1,7 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 const doctorSchema = new Schema(
     {
-       
+        userid: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
         fullName: {
             type: String,
             trim: true,
