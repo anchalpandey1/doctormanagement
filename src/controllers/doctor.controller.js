@@ -110,7 +110,7 @@ const updateDoctorProfile = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Doctor profile not found.");
     }
 
-    res.status(200).json(new ApiResponse(200, doctor, "Doctor profile updated successfully."));
+    res.status(200).json(new ApiResponse(200, doctor,"doctor", "Doctor profile updated successfully."));
 });
 
 const deleteDoctorProfile = asyncHandler(async (req, res) => {
