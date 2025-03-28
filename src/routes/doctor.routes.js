@@ -7,7 +7,7 @@ const router = Router();
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 router.route("/createprofile").post(verifyJWT, createprofile);
-router.route("/get").get(verifyJWT, getDoctorProfile);
+router.route("/get/:id").get(verifyJWT, getDoctorProfile);
 router.route("/getall").get( getAllDoctors);
 router.route("/update").put(verifyJWT, updateDoctorProfile);
 router.route("/delete").delete(verifyJWT, deleteDoctorProfile);
