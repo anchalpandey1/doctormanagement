@@ -65,6 +65,11 @@ const doctorSchema = new Schema(
             trim: true,
             lowercase: true
         },
+        experience: {
+            type: Number, // Adding experience field
+            required: true,
+            min: 0, // Ensures experience is not negative
+        },
     },
     
     {
