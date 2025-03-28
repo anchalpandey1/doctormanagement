@@ -41,7 +41,7 @@ const createprofile = asyncHandler(async (req, res) => {
         experience // Added experience field
     });
 
-    res.status(201).json(new ApiResponse(201, newDoctor, "Doctor profile created successfully"));
+    res.status(201).json(new ApiResponse(201, newDoctor,"doctor", "Doctor profile created successfully"));
 });
 
 // const getDoctorProfile = asyncHandler(async (req, res) => {
