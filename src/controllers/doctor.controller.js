@@ -14,9 +14,9 @@ const createprofile = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Unauthorized access.");
     }
 
-    const userid = req.user._id; // Get user ID from authentication
+    const userid = req.user._id; 
 
-    // Check if doctor profile already exists with the given phone number or email
+ 
     const existingDoctor = await Doctor.findOne({ 
         $or: [{ phoneNumber }, { email: req.user.email }] 
     });
@@ -27,22 +27,23 @@ const createprofile = asyncHandler(async (req, res) => {
 
     const newDoctor = await Doctor.create({
         userid,
-        fullName: fullName.trim(),
-        qualification: qualification.trim(),
-        specialty: specialty.trim(),
-        bio: bio.trim(),
-        languages: languages.trim(),
-        hospital: hospital.trim(),
-        typesOfSurgeon: typesOfSurgeon.trim(),
-        phoneNumber: phoneNumber.trim(),
+        fullName: fullName?.trim() || "",
+        qualification: qualification?.trim() || "",
+        specialty: specialty?.trim() || "",
+        bio: bio?.trim() || "",
+        languages: Array.isArray(languages) ? languages.join(", ").trim() : (languages?.trim() || ""),
+        hospital: hospital?.trim() || "",
+        typesOfSurgeon: typesOfSurgeon?.trim() || "",
+        phoneNumber: phoneNumber?.trim() || "",
         gender,
         profileUrl,
         email: req.user.email,
-        experience // Added experience field
+        experience
     });
 
-    res.status(201).json(new ApiResponse(201, newDoctor,"doctor", "Doctor profile created successfully"));
+    res.status(201).json(new ApiResponse(201, newDoctor, "doctor", "Doctor profile created successfully"));
 });
+
 
 // const getDoctorProfile = asyncHandler(async (req, res) => {
 //     if (!req.user) {
