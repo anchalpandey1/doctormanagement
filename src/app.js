@@ -60,13 +60,14 @@ app.get("/api/v1/", (req, res) => {
 import userRouter from "./routes/user.routes.js";
 import doctorRouter from "./routes/doctor.routes.js";
 import patientRouter from "./routes/patient.routes.js";
+import appointmentRouter from "./routes/appointment.routes.js";
 app.use(logReqRes("log.txt"));
 
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/doctors", doctorRouter);
 app.use("/api/v1/patients", patientRouter);
-
+app.use("/api/v1/appointments", appointmentRouter);
 app.use((err, req, res, next) => {
     if (err.type === "entity.too.large") {
         // Error type for payload too large
