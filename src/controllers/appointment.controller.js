@@ -2,7 +2,7 @@ import { Appointment } from "../models/appointment.model.js";
 import { Doctor } from "../models/doctor.model.js";
 import { User } from "../models/user.model.js";
 import moment from "moment";
-
+import mongoose from "mongoose";
 // **1. Book an Appointment**
 export const bookAppointment = async (req, res) => {
     try {
