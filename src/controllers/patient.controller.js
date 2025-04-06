@@ -10,9 +10,52 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// const createUserProfile = asyncHandler(async (req, res) => {
+//     try {
+//         const { firstName, lastName, gender, address, phoneNumber, profileUrl } = req.body;
+
+//         if (!req.user) {
+//             return res.status(401).json(new ApiError(401, null, "Unauthorized access"));
+//         }
+
+//         // Check if patient profile already exists for this user
+//         let patient = await Patient.findOne({ userid: req.user._id });
+
+//         if (patient) {
+//             return res.status(400).json(new ApiError(400, null, "Profile already created"));
+//         }
+
+//         // Create new patient profile
+//         patient = new Patient({
+//             userid: req.user._id,
+//             firstName,
+//             lastName,
+//             gender,
+//             address,
+//             phoneNumber,
+//             profileUrl,
+//         });
+
+//         await patient.save();
+
+//         res.status(201).json(new ApiResponse(201, patient, "userInfo", "Profile created successfully"));
+//     } catch (error) {
+//         console.error("Error in createUserProfile:", error);
+//         res.status(500).json(new ApiError(500, null, "Internal Server Error"));
+//     }
+// });
+
 const createUserProfile = asyncHandler(async (req, res) => {
     try {
-        const { firstName, lastName, gender, address, phoneNumber, profileUrl } = req.body;
+        const { firstName, lastName, gender, address, phoneNumber } = req.body;
+        if (!req.file) {
+          return res.status(400).json({ message: 'No file uploaded' });
+        }
+        console.log(req.file.filename);
+        const profileUrl = req.file.filename; // Assuming the filename is stored in req.file.filename
+
+        console.log(req.body);
+        
 
         if (!req.user) {
             return res.status(401).json(new ApiError(401, null, "Unauthorized access"));

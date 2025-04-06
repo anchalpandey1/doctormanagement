@@ -6,9 +6,10 @@ import {
     getUserAppointments,
     getDoctorAppointments,
     addPatientInfo,
+    updateAppointment,
     createCompleteAppointment
 } from "../controllers/appointment.controller.js";
-import upload from "../utils/multer.js";
+
 import { validateRequestBody } from "../middlewares/validation.middleware.js";
 
 const router = Router();
@@ -20,4 +21,5 @@ router.route("/slots/:doctorId").get( getDoctorSlots);
 router.route("/cancel/:id").put( cancelAppointment);
 router.route("/user/:userId").get( getUserAppointments);
 router.route("/doctor/:doctorId").get( getDoctorAppointments);
+router.route("/appointment/:id").patch( updateAppointment);
 export default router;

@@ -232,11 +232,15 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
+    if (!req.user || !req.user._id) {
+        return res.status(401).json(new ApiError(401, null, "Unauthorized"));
+    }
+
     await User.findByIdAndUpdate(
         req.user._id,
         {
             $unset: {
-                refreshToken: 1, 
+                refreshToken: 1,
             },
         },
         {
@@ -255,6 +259,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         .clearCookie("refreshToken", options)
         .json(new ApiResponse(200, {}, {}, "User logged Out"));
 });
+
 
 const deleteUser = asyncHandler(async (req, res) => {
     try {

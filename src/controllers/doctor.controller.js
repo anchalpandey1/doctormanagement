@@ -9,7 +9,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const createprofile = asyncHandler(async (req, res) => {
-    const { fullName, qualification, specialty, bio, languages, hospital, typesOfSurgeon, phoneNumber, gender, profileUrl, experience } = req.body;
+    const { fullName, qualification, specialty, bio, languages, hospital, typesOfSurgeon, phoneNumber, gender, experience } = req.body;
+
+    console.log(req.file.filename);
+    const profileUrl = req.file.filename; // Assuming the filename is stored in req.file.filename
+
+    console.log(req.body);
 
     if (!req.user) {
         throw new ApiError(401, "Unauthorized access.");
@@ -45,7 +50,6 @@ const createprofile = asyncHandler(async (req, res) => {
     res.status(201).json(new ApiResponse(201, newDoctor, "doctor", "Doctor profile created successfully"));
 });
 
-
 // const getDoctorProfile = asyncHandler(async (req, res) => {
 //     if (!req.user) {
 //         throw new ApiError(401, "Unauthorized access.");
@@ -78,8 +82,6 @@ const getDoctorProfile = asyncHandler(async (req, res) => {
 
     res.status(200).json(new ApiResponse(200, doctor, "doctor", "Doctor profile fetched successfully."));
 });
-
-
 
 const getAllDoctors = asyncHandler(async (req, res) => {
     const doctors = await Doctor.find();

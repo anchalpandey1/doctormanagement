@@ -3,6 +3,7 @@ import { Doctor } from "../models/doctor.model.js";
 import { User } from "../models/user.model.js";
 import moment from "moment";
 import mongoose from "mongoose";
+
 // **1. Book an Appointment**
 export const bookAppointment = async (req, res) => {
     try {
@@ -99,7 +100,8 @@ export const createCompleteAppointment = async (req, res) => {
         // ✅ Merge appointment data with payment details
         const newAppointment = new Appointment({
             ...appointment,
-            ...paymentDetails
+            ...paymentDetails,
+            status: "Pending"
         });
 
         // ✅ Save the new appointment
@@ -172,18 +174,8 @@ export const getUserAppointments = async (req, res) => {
 };
 
 
-// export const getDoctorAppointments = async (req, res) => {
-//     try {
-//         const { doctorId } = req.params;
-//         const appointments = await Appointment.find({ doctorId })
-//             .populate("userId", "fullName email")
-//             .sort({ appointmentDate: 1, appointmentTime: 1 });
 
-//         res.status(200).json({ success: true, message: "Doctor's Appointments", appointments });
-//     } catch (error) {
-//         res.status(500).json({ success: false, message: "Server error", error: error.message });
-//     }
-// };
+
 
 
 
@@ -260,62 +252,116 @@ export const getDoctorAppointments = async (req, res) => {
 };
 
 
-
-// export const getDoctorAppointments = async (req, res) => {
+// export const updateAppointment = async (req, res) => {
 //     try {
-//         const { doctorId } = req.params;
+//         const { id } = req.params;
+//         let updateData = req.body;
 
-//         // Convert doctorId to ObjectId
-//         const objectIdDoctorId = new mongoose.Types.ObjectId(doctorId);
-
-//         const stats = await Appointment.aggregate([
-//             {
-//                 $match: { doctorId: objectIdDoctorId } // Ensure correct data type
-//             },
-//             {
-//                 $group: {
-//                     _id: "$doctorId",
-//                     totalAppointments: { $sum: 1 },
-//                     pendingAppointments: { $sum: { $cond: [{ $eq: ["$status", "Pending"] }, 1, 0] } },
-//                     upcomingAppointments: { $sum: { $cond: [{ $eq: ["$status", "Upcoming"] }, 1, 0] } },
-//                     cancelledAppointments: { $sum: { $cond: [{ $eq: ["$status", "Cancelled"] }, 1, 0] } }
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "doctors",
-//                     localField: "_id",
-//                     foreignField: "_id",
-//                     as: "doctorDetails"
-//                 }
-//             },
-//             {
-//                 $unwind: {
-//                     path: "$doctorDetails",
-//                     preserveNullAndEmptyArrays: true // Ensures doctor details are still returned even if they don't exist
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     _id: 0,
-//                     doctorId: "$_id",
-//                     doctorName: "$doctorDetails.fullName",
-//                     specialty: "$doctorDetails.specialty",
-//                     totalAppointments: 1,
-//                     pendingAppointments: 1,
-//                     upcomingAppointments: 1,
-//                     cancelledAppointments: 1
-//                 }
+//         // Validate status if provided
+//         if (updateData.status) {
+//             const allowedStatuses = ["Pending", "Upcoming", "Completed", "Cancelled"];
+//             if (!allowedStatuses.includes(updateData.status)) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: "Invalid status value"
+//                 });
 //             }
-//         ]);
+//         }
+
+//         // Fetch the current appointment
+//         const existingAppointment = await Appointment.findById(id);
+//         if (!existingAppointment) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "Appointment not found"
+//             });
+//         }
+
+//         // Check if the appointment should be marked as Completed
+//         const currentDate = new Date();
+//         const appointmentDate = new Date(updateData.appointmentDate || existingAppointment.appointmentDate);
+//         const status = updateData.status || existingAppointment.status;
+
+//         if (status === "Upcoming" && appointmentDate < currentDate) {
+//             updateData.status = "Completed";
+//         }
+
+//         // Update the appointment
+//         const updatedAppointment = await Appointment.findByIdAndUpdate(
+//             id,
+//             updateData,
+//             { new: true }
+//         );
 
 //         res.status(200).json({
 //             success: true,
-//             message: "Doctor appointment statistics",
-//             stats: stats.length ? stats : []
+//             message: "Appointment updated successfully",
+//             appointment: updatedAppointment
 //         });
 //     } catch (error) {
-//         res.status(500).json({ success: false, message: "Server error", error: error.message });
+//         res.status(500).json({
+//             success: false,
+//             message: "Server error",
+//             error: error.message
+//         });
 //     }
 // };
 
+export const updateAppointment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        let updateData = req.body;
+
+        // Validate status if provided
+        if (updateData.status) {
+            const allowedStatuses = ["Pending", "Upcoming", "Completed", "Cancelled"];
+            if (!allowedStatuses.includes(updateData.status)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid status value"
+                });
+            }
+        }
+
+        // Fetch the current appointment
+        const existingAppointment = await Appointment.findById(id);
+        if (!existingAppointment) {
+            return res.status(404).json({
+                success: false,
+                message: "Appointment not found"
+            });
+        }
+
+        // Determine the actual date and status to work with
+        const newAppointmentDate = updateData.appointmentDate
+            ? new Date(updateData.appointmentDate)
+            : new Date(existingAppointment.appointmentDate);
+
+        const currentStatus = updateData.status || existingAppointment.status;
+        const currentDate = new Date();
+
+        // Automatically mark as completed if the date is in the past and status is "Upcoming"
+        if (currentStatus === "Upcoming" && newAppointmentDate < currentDate) {
+            updateData.status = "Completed";
+        }
+
+        // Update the appointment
+        const updatedAppointment = await Appointment.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "Appointment updated successfully",
+            appointment: updatedAppointment
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
