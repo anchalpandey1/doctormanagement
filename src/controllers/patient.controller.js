@@ -48,9 +48,9 @@ dotenv.config();
 const createUserProfile = asyncHandler(async (req, res) => {
     try {
         const { firstName, lastName, gender, address, phoneNumber } = req.body;
-        // if (!req.file) {
-        //   return res.status(400).json({ message: 'No file uploaded' });
-        // }
+        if (!req.file) {
+          return res.status(400).json({ message: 'No file uploaded' });
+        }
         console.log(req.file.filename);
         const profileUrl = req.file.filename; // Assuming the filename is stored in req.file.filename
 
