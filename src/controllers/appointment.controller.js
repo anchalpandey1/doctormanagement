@@ -252,60 +252,6 @@ export const getDoctorAppointments = async (req, res) => {
 };
 
 
-// export const updateAppointment = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         let updateData = req.body;
-
-//         // Validate status if provided
-//         if (updateData.status) {
-//             const allowedStatuses = ["Pending", "Upcoming", "Completed", "Cancelled"];
-//             if (!allowedStatuses.includes(updateData.status)) {
-//                 return res.status(400).json({
-//                     success: false,
-//                     message: "Invalid status value"
-//                 });
-//             }
-//         }
-
-//         // Fetch the current appointment
-//         const existingAppointment = await Appointment.findById(id);
-//         if (!existingAppointment) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: "Appointment not found"
-//             });
-//         }
-
-//         // Check if the appointment should be marked as Completed
-//         const currentDate = new Date();
-//         const appointmentDate = new Date(updateData.appointmentDate || existingAppointment.appointmentDate);
-//         const status = updateData.status || existingAppointment.status;
-
-//         if (status === "Upcoming" && appointmentDate < currentDate) {
-//             updateData.status = "Completed";
-//         }
-
-//         // Update the appointment
-//         const updatedAppointment = await Appointment.findByIdAndUpdate(
-//             id,
-//             updateData,
-//             { new: true }
-//         );
-
-//         res.status(200).json({
-//             success: true,
-//             message: "Appointment updated successfully",
-//             appointment: updatedAppointment
-//         });
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: "Server error",
-//             error: error.message
-//         });
-//     }
-// };
 
 export const updateAppointment = async (req, res) => {
     try {
